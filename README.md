@@ -17,5 +17,5 @@ Get recommendations and suggestion on your resume from smart AI resume evaluator
   - Enter your OpenAI key, upload your resume and enter your job description. 
 
 - Deployed 
-  - Use this link to access the streamlit deployed app 
+  - Use this link to access the streamlit deployed app https://adityakulshrestha-resumeevaluator-resume-parser-kiqljl.streamlit.app/
 
