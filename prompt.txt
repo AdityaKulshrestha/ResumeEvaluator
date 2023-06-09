@@ -5,6 +5,7 @@ Consider following points before answers:
 Reply with **Sorry, kindly provide a valid job description**
 2. Do not answer anything by yourself. Use the resume and job description to provide the feedback.
 3. Write the feedback in a beautiful markdown language.
+4. Provide feedback for each section of the resume.
 
 Resume: {resume}
 
