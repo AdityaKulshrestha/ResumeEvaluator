@@ -6,8 +6,9 @@ from langchain.callbacks import get_openai_callback
 import os
 import streamlit as st
 
-st.title("Your medical buddy!")
+st.title("Smart AI Resume Evaluator")
 
+st.subheader("Get feedback on your resume and check whether your resume fulfills the job requirements.")
 openai_key = st.text_input("Enter your OpenAI key", type='password')
 
 os.environ['OPENAI_API_KEY'] = openai_key
@@ -38,13 +39,11 @@ if resume is not None:
     # st.markdown(pdf_display, unsafe_allow_html=True)
     reader = PdfReader(resume)
     number_of_pages = len(reader.pages)
-    print(number_of_pages)
     text = ""
     for pg in range(number_of_pages):
         page = reader.pages[pg]
         extracted_text = page.extract_text()
         text += extracted_text
-    # st.text(extracted_text)
 
 if st.button("Submit", key='Final_submit'):
     response, tokens = feedback(resume, job_description)
