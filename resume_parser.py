@@ -5,38 +5,32 @@ from langchain.chains import LLMChain
 from langchain.callbacks import get_openai_callback
 import os
 import streamlit as st
+from streamlit_chat import message
+
 
 st.title("Smart AI Resume Evaluator")
 
-st.subheader("Get feedback on your resume and check whether your resume fulfills the job requirements.")
+
 openai_key = st.text_input("Enter your OpenAI key", type='password')
-
 os.environ['OPENAI_API_KEY'] = openai_key
-
 
 resume = st.file_uploader("Upload your resume", type="PDF")
 job_description = st.text_input("Enter the description of the job.")
 
 
-def feedback(resume, job):
+def feedback(resume, job, query):
     with open('prompt.txt', 'r') as f:
         template = f.read()
     prompt = PromptTemplate(
-        input_variables=["resume", "job_description"],
+        input_variables=["resume", "job_description", 'query'],
         template=template,
     )
     with get_openai_callback() as cb:
         chain = LLMChain(llm=ChatOpenAI(temperature=0), prompt=prompt)
-        return chain.run({'resume': resume, 'job_description': job}), cb
+        return chain.run({'resume': resume, 'job_description': job, "query": query})
 
 
 if resume is not None:
-    # base64_pdf = base64.b64encode(resume.read()).decode("utf-8")
-    # pdf_display = (
-    #     f'<embed src="data:application/pdf;base64,{base64_pdf}" '
-    #     'width="800" height="1000" type="application/pdf"></embed>'
-    # )
-    # st.markdown(pdf_display, unsafe_allow_html=True)
     reader = PdfReader(resume)
     number_of_pages = len(reader.pages)
     text = ""
@@ -45,6 +39,36 @@ if resume is not None:
         extracted_text = page.extract_text()
         text += extracted_text
 
-if st.button("Submit", key='Final_submit'):
-    response, tokens = feedback(resume, job_description)
-    st.markdown(response)
+if 'generated' not in st.session_state:
+    st.session_state['generated'] = []
+
+if 'past' not in st.session_state:
+    st.session_state['past'] = []
+
+if 'messages' not in st.session_state:
+    st.session_state.messages = []
+
+
+def get_text():
+    input_text = st.text_input("You: ", "Hello, how are you?", key="input")
+    return input_text
+
+
+user_input = get_text()
+
+if st.button("Submit", key='Final_submit') and user_input:
+    output = feedback(resume, job_description, user_input)
+    print(type(output))
+    print(output)
+
+    st.session_state.past.append(user_input)
+    st.session_state.generated.append(output)
+
+if st.session_state['generated']:
+    print(st.session_state)
+
+    for i in range(len(st.session_state['generated']) - 1, -1, -1):
+        message(st.session_state["generated"][i], key=str(i))
+        message(st.session_state['past'][i], is_user=True, key=str(i) + '_user')
+
+
